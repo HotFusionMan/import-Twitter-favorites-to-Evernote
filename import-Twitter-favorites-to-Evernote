@@ -1,1 +1,1 @@
-ruby -IEvernote/EDAM post_Evernote_note.rb
+ruby -IEvernote/EDAM twitter_favorites_to_evernote.rb
