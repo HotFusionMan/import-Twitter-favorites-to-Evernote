@@ -56,3 +56,5 @@ notebooks.each { |notebook|
     @defaultNotebook = notebook
   end
 }
+
+MAX_INT32 = 2**31 - 1
