@@ -23,7 +23,7 @@ def post_to_Evernote( note_title, well_formed_XHTML_note_content )
     createdNote = @noteStore.createNote( @authToken, note )
     puts "Note was created, GUID = #{createdNote.guid}"
   rescue Thrift::Exception => e
-    puts "Error occurred on note with GUID #{note.guid} : #{e.errorCode}"
+    puts "Error occurred on note with title #{note.title} : #{e.errorCode}"
   end
 end
 
