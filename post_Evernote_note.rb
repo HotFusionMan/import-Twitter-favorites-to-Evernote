@@ -1,5 +1,13 @@
 require 'Evernote_connection'
 
+def build_Evernote_note_content( content )
+  '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml.dtd">' +
+    '<en-note>' +
+     content +
+    '</en-note>'
+end
+
 def post_to_Evernote( note_title, well_formed_XHTML_note_content )
   #puts "Creating a new note in the default notebook: #{defaultNotebook.name}"
   #puts
@@ -7,11 +15,7 @@ def post_to_Evernote( note_title, well_formed_XHTML_note_content )
   note.notebookGuid = @defaultNotebook.guid
 
   note.title = note_title.strip
-  note.content = '<?xml version="1.0" encoding="UTF-8"?>' +
-    '<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml.dtd">' +
-    '<en-note>' +
-    well_formed_XHTML_note_content.strip +
-    '</en-note>'
+  note.content = build_Evernote_note_content( well_formed_XHTML_note_content.strip )
   note.created = Time.now.to_i * 1000
   note.updated = note.created
 
