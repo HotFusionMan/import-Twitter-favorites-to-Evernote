@@ -4,6 +4,7 @@
 @starts_with_ftp_regexp = Regexp.new( '(^|[\n (\[{])((ftp)\.[^ \"\t\n\r<]*)', Regexp::MULTILINE | Regexp::IGNORECASE )
 @email_regexp = Regexp.new( '(^|[\n ])([a-z0-9&\-_\.]+?)@([\w\-]+\.([\w\-\.]+\.)*[\w]+)', Regexp::IGNORECASE )
 
+# NOTE:  The linkify operation is not idempotent.  Do not run it on text that has already been linkified!
 def linkify( text )
   s = text.to_s
   s.gsub!( @generic_URL_regexp, '\1<a href="\2">\2</a>' )

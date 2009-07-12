@@ -47,10 +47,10 @@ noteStoreTransport = Thrift::HTTPClientTransport.new(noteStoreUrl)
 noteStoreProtocol = Thrift::BinaryProtocol.new(noteStoreTransport)
 @noteStore = Evernote::EDAM::NoteStore::NoteStore::Client.new(noteStoreProtocol)
 
-notebooks = @noteStore.listNotebooks( @authToken )
-#puts "Found #{notebooks.size} notebooks:"
-@defaultNotebook = notebooks[0]
-notebooks.each { |notebook|
+@notebooks = @noteStore.listNotebooks( @authToken )
+#puts "Found #{@notebooks.size} notebooks:"
+@defaultNotebook = @notebooks[0]
+@notebooks.each { |notebook|
 #  puts "  * #{notebook.name}"
   if (notebook.defaultNotebook)
     @defaultNotebook = notebook
@@ -58,3 +58,23 @@ notebooks.each { |notebook|
 }
 
 MAX_INT32 = 2**31 - 1
+
+
+def get_all_notes_from_default_notebook
+  get_all_notes_from_notebook( @defaultNotebook.guid )
+end
+
+def get_all_notes_from_notebook( notebook_guid )
+  filter = Evernote::EDAM::NoteStore::NoteFilter.new
+  filter.notebookGuid = notebook_guid
+  filter.order = Evernote::EDAM::Type::NoteSortOrder::CREATED
+  filter.ascending = TRUE
+
+  begin
+    noteList = @noteStore.findNotes( @authToken, filter, 0, 10000 ) # Evernote doesn't like using big numbers here such as MAX_INT32 )
+    return noteList.notes
+  rescue => e
+    puts "Error occurred : #{e.errorCode}"
+    exit
+  end
+end

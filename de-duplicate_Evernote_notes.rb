@@ -2,17 +2,7 @@
 
 require 'Evernote_connection'
 
-filter = Evernote::EDAM::NoteStore::NoteFilter.new
-filter.notebookGuid = @defaultNotebook.guid
-filter.order = Evernote::EDAM::Type::NoteSortOrder::CREATED
-filter.ascending = TRUE
-
-begin
-  noteList = @noteStore.findNotes( @authToken, filter, 0, 10000 ) # Evernote doesn't like using big numbers here such as MAX_INT32 )
-rescue => e
-  puts e #.message
-  exit
-end
+noteList = get_all_notes_from_default_notebook
 
 have_seen_note_title = {}
 

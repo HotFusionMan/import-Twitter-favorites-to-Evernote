@@ -1,102 +1,34 @@
 # Written for de-duplication of notes created from Twitter favorites
 
 require 'Evernote_connection'
+require 'rexml/document'
+require 'post_Evernote_note'
+require 'linkify'
 
-noteList = get_all_notes_from_default_notebook
 
-notes = noteList.notes
+notes = get_all_notes_from_default_notebook
 
-max_index = 1
 notes.each_with_index { |note, i|
-  note.struct_fields.each_value { |value|
-    name = value[:name]
-    puts "#{name}=#{note.send( name )}"
-  }
-  puts
-  break if i >= max_index
-}
+  # note.struct_fields.each_value { |value|
+  #   name = value[:name]
+  #   puts "#{name}=#{note.send( name )}"
+  # }
 
-=begin
-==
-===
-=~
-__id__
-__send__
-active
-active=
-attributes
-attributes=
-class
-clone
-content
-content=
-contentHash
-contentHash=
-contentLength
-contentLength=
-created
-created=
-deleted
-deleted=
-differences
-display
-dup
-each_field
-eql?
-equal?
-extend
-fields_with_default_values
-freeze
-frozen?
-guid
-guid=
-hash
-id
-inspect
-instance_eval
-instance_of?
-instance_variable_defined?
-instance_variable_get
-instance_variable_set
-instance_variables
-is_a?
-kind_of?
-method
-methods
-name_to_id
-nil?
-notebookGuid
-notebookGuid=
-object_id
-private_methods
-protected_methods
-public_methods
-read
-resources
-resources=
-respond_to?
-send
-singleton_methods
-struct_fields
-tagGuids
-tagGuids=
-taguri
-taguri=
-taint
-tainted?
-title
-title=
-to_a
-to_s
-to_yaml
-to_yaml_properties
-to_yaml_style
-type
-untaint
-updateSequenceNum
-updateSequenceNum=
-updated
-updated=
-validate
-write
-=end
+  xml_document = REXML::Document.new( @noteStore.getNoteContent( @authToken, note.guid ) )
+  content_node = xml_document.root.get_elements( '//en-note' ).first
+  content = content_node.text
+
+  updated_note = Evernote::EDAM::Type::Note.new
+  updated_note.guid = note.guid
+  updated_note.title = note.title
+  updated_note.content = build_Evernote_note_content( linkify( content ) )
+  updated_note.created = note.created
+  updated_note.updated = Time.now.to_i * 1000
+
+  begin
+    updated_note_metadata = @noteStore.updateNote( @authToken, updated_note )
+    puts "Note was updated, GUID = #{updated_note_metadata.guid}"
+  rescue Thrift::Exception => e
+    puts "Error occurred on note with GUID #{note.guid} : #{e.errorCode}"
+  end
+}
