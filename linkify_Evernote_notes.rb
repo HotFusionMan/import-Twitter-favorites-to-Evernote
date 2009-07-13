@@ -21,7 +21,7 @@ notes.each_with_index { |note, i|
   updated_note = Evernote::EDAM::Type::Note.new
   updated_note.guid = note.guid
   updated_note.title = note.title
-  updated_note.content = build_Evernote_note_content( linkify( content ) )
+  updated_note.content = build_Evernote_note_content( linkify( REXML::Text.new( content ).to_s ) )
   updated_note.created = note.created
   updated_note.updated = Time.now.to_i * 1000
 
