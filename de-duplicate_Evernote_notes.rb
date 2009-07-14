@@ -2,11 +2,9 @@
 
 require 'Evernote_connection'
 
-noteList = get_all_notes_from_default_notebook
+notes = get_all_notes_from_default_notebook
 
 have_seen_note_title = {}
-
-notes = noteList.notes
 
 notes.each { |note|
   if have_seen_note_title[note.title] then
