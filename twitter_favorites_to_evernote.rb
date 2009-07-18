@@ -28,9 +28,11 @@ loop do
     begin
       page = base.favorites #( :page => page_number ) # Given that we're going to un-favorite tweets as we go, it only makes sense to always retrieve the newest page of favorites, which will be progressively older tweets as we go along.
     rescue Twitter::NotFound => e
-      puts "#{e.message} on tweet #{tweet.id}; sleeping for 5 seconds before retrying"
+      puts e.message
       sleep 5
       retry
+    rescue => e
+      puts e.message
     end
 
     unless page.empty?
@@ -49,6 +51,8 @@ loop do
             puts "#{e.message} on tweet #{tweet.id}; sleeping for 5 seconds before retrying"
             sleep 5
             retry
+          rescue => e
+            puts e.message
           end
         else
           $! = nil
