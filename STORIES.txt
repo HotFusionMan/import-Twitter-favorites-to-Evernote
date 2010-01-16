@@ -1,0 +1,1 @@
+- Use OAuth instead of storing usernames and passwords in a local disk file.
