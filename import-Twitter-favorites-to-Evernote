@@ -1,2 +1,3 @@
 #!/bin/bash
-ruby -IEvernote/EDAM twitter_favorites_to_evernote.rb
+cd /Users/al/git_workspace/import-Twitter-favorites-to-Evernote
+/usr/local/bin/ruby -rubygems -IEvernote/EDAM twitter_favorites_to_evernote.rb
