@@ -1,1 +1,2 @@
 - Use OAuth instead of storing usernames and passwords in a local disk file.
+- Use http://github.com/cgs/evernote instead of the raw Evernote Thrift code.
