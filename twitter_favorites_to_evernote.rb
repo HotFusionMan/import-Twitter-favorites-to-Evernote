@@ -42,31 +42,38 @@ number_of_favorites_pages.downto( 1 ) do |page_number|
       puts e.message
     end
 
-    page.reverse.each { |tweet|
-      begin
-        post_to_Evernote tweet.id.to_s, linkify( REXML::Text.new( tweet.text ).to_s )
-      rescue => e
-        puts "Had a problem posting tweet #{tweet.id} to Evernote: #{e.message}"
-        $! = TRUE
-      end
-
-      if $!.nil? then
+    unless page.empty?
+      page.reverse.each { |tweet|
         begin
-          base.favorite_destroy tweet.id
-        rescue Twitter::NotFound => e
-          puts "#{e.message} on tweet #{tweet.id}; sleeping for 5 seconds before retrying"
-          sleep 5
-          retry
+          post_to_Evernote tweet.id.to_s, linkify( REXML::Text.new( tweet.text ).to_s )
         rescue => e
-          puts e.message
+          puts "Had a problem posting tweet #{tweet.id} to Evernote: #{e.message}"
+          $! = TRUE
         end
-      else
-        $! = nil
-      end
-    }
+  
+        if $!.nil? then
+          begin
+            base.favorite_destroy tweet.id
+          rescue Twitter::NotFound => e
+            puts "#{e.message} on tweet #{tweet.id}; sleeping for 5 seconds before retrying"
+            sleep 5
+            retry
+          rescue => e
+            puts e.message
+          end
+        else
+          $! = nil
+        end
+      }
+    end
   rescue Twitter::RateLimitExceeded => e
-    minutes_until_rate_limit_is_reset = ( base.rate_limit_status.reset_time_in_seconds - Time.now.to_i ) / 60.0
+    twitter_API_rate_reset_time_in_seconds = base.rate_limit_status.reset_time_in_seconds
+    minutes_until_rate_limit_is_reset = ( twitter_API_rate_reset_time_in_seconds - Time.now.to_i ) / 60.0
     puts "Sorry, we've exceeded the Twitter-imposed rate limit for accessing their service.  We'll have to wait #{minutes_until_rate_limit_is_reset} minutes before this account can access Twitter again."
-    exit
+    sleep twitter_API_rate_reset_time_in_seconds
+    retry
+  rescue Twitter::Unavailable => e
+    sleep 5
+    retry
   end
 end
